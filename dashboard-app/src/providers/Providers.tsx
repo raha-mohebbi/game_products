@@ -1,15 +1,19 @@
 "use client";
 
-import { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export function Providers({ children }: { children: ReactNode }) {
-  const queryClient = new QueryClient();
-  const system = createSystem(defaultConfig);
+// ساخت QueryClient برای React Query
+const queryClient = new QueryClient();
 
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
   return (
-    <ChakraProvider value={system}>
+    <ChakraProvider value={defaultSystem}>
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>
