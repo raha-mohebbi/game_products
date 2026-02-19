@@ -12,17 +12,23 @@ import {
   Spinner,
   VStack,
 } from "@chakra-ui/react";
-import { fetchProducts, Product } from "../services/products.service";
+import { fetchProducts, Product, ProductsResponse } from "../services/products.service";
 import Link from "next/link";
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]); // فیلتر ژانر
 
-  const { data, isLoading, error } = useQuery<Product[]>({
-    queryKey: ["products", search],
-    queryFn: () => fetchProducts(search),
-    keepPreviousData: true,
-  });
+  const { data, isLoading, error } = useQuery<ProductsResponse>({
+  queryKey: ["products", search],
+  queryFn: () => fetchProducts(search),
+  keepPreviousData: true,
+});
+
+console.log("Products data:", data);
+
+  if (isLoading) return <Spinner size="xl" />;
+  if (error || !data) return <Text color="red.500">Failed to load products</Text>;
 
   return (
     <Box p={10}>
