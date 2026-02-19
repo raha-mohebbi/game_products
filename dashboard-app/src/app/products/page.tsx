@@ -35,35 +35,29 @@ export default function ProductsPage() {
         mb={6}
       />
 
-      {isLoading ? (
-        <Spinner size="xl" />
-      ) : error ? (
-        <Text color="red.500">Failed to load products</Text>
-      ) : (
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-          {data?.map((product) => (
-            <Link key={product.id} href={`/products/${product.id}`}>
-              <VStack
-                borderWidth="1px"
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+        {data.results.map((product: Product) => (
+          <Link key={product.id} href={`/products/${product.id}`}>
+            <VStack
+              borderWidth="1px"
+              borderRadius="md"
+              p={4}
+              cursor="pointer"
+              _hover={{ shadow: "md" }}
+            >
+              <Image
+                src={product.background_image || "/placeholder.png"}
+                alt={product.name}
                 borderRadius="md"
-                p={4}
-                cursor="pointer"
-                _hover={{ shadow: "md" }}
-              >
-                <Image
-                  src={product.background_image || "/placeholder.png"}
-                  alt={product.name}
-                  borderRadius="md"
-                  boxSize="200px"
-                  objectFit="cover"
-                />
-                <Text fontWeight="bold">{product.name}</Text>
-                <Text>Rating: {product.rating}</Text>
-              </VStack>
-            </Link>
-          ))}
-        </SimpleGrid>
-      )}
+                boxSize="200px"
+                objectFit="cover"
+              />
+              <Text fontWeight="bold">{product.name}</Text>
+              <Text>Rating: {product.rating}</Text>
+            </VStack>
+          </Link>
+        ))}
+      </SimpleGrid>
     </Box>
   );
 }
