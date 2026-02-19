@@ -1,26 +1,60 @@
 import axios from "axios";
 
 const API_URL = "https://api.rawg.io/api/games";
-const API_KEY = "0a087a96dc3641c5a129920cd094ac50"; 
+const GENRES_URL = "https://api.rawg.io/api/genres";
+const API_KEY = process.env.NEXT_PUBLIC_RAWG_KEY;
 
+export interface Genre {
+  id: number;
+  name: string;
+}
 export interface Product {
   id: number;
   name: string;
   background_image: string;
-  rating: number;
-  genres: { id: number; name: string }[];
+  genres: Genre[];
+  description_raw?: string;
 }
 
-export async function fetchProducts(search?: string): Promise<Product[]> {
+export interface ProductsResponse {
+  results: Product[];
+  count: number;
+  next: string | null;
+  previous: string | null;
+}
+
+export async function fetchProducts(
+  search?: string,
+  genres?: number[],
+  page: number = 1
+): Promise<ProductsResponse> {
   const res = await axios.get(API_URL, {
-    params: { key: API_KEY, search },
+    params: {
+      key: API_KEY,
+      search,
+      genres: genres?.join(","), 
+      page,
+      page_size: 12, 
+    },
   });
-  return res.data.results;
+
+  return res.data;
 }
 
-export async function fetchProductById(id: number): Promise<Product> {
+export async function fetchProductById(
+  id: number
+): Promise<Product> {
   const res = await axios.get(`${API_URL}/${id}`, {
     params: { key: API_KEY },
   });
+
   return res.data;
+}
+
+export async function fetchGenres(): Promise<Genre[]> {
+  const res = await axios.get(GENRES_URL, {
+    params: { key: API_KEY },
+  });
+
+  return res.data.results;
 }
