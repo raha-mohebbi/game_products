@@ -29,7 +29,6 @@ const { data, isLoading, isFetching, error } = useQuery<ProductsResponse>({
   
 });
 
-console.log("Products data:", data);
 
   if (isLoading && !data)
   return (

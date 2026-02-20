@@ -14,6 +14,7 @@ export interface Product {
   background_image: string;
   genres: Genre[];
   description_raw?: string;
+   rating: number; 
 }
 
 export interface ProductsResponse {
@@ -24,6 +25,7 @@ export interface ProductsResponse {
 }
 
 export async function fetchProducts(
+  
   search?: string,
   genres?: number[],
   page: number = 1
