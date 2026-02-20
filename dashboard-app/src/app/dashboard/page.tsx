@@ -1,18 +1,7 @@
 "use client";
 
-import {
-  Box,
-  Heading,
-  SimpleGrid,
-  Spinner,
-  Text,
-  Card as CardComponent,
-  CardHeader,
-  CardBody,
-} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-
 
 interface User {
   id: number;
@@ -20,7 +9,6 @@ interface User {
   lastName: string;
   username: string;
 }
-
 
 interface Product {
   id: number;
@@ -30,7 +18,6 @@ interface Product {
 }
 
 export default function DashboardPage() {
-
   const { data: users, isLoading: loadingUsers, error: errorUsers } = useQuery<
     User[],
     Error
@@ -42,7 +29,6 @@ export default function DashboardPage() {
     },
   });
 
-  
   const {
     data: products,
     isLoading: loadingProducts,
@@ -57,55 +43,59 @@ export default function DashboardPage() {
 
   if (loadingUsers || loadingProducts)
     return (
-      <Box p={10}>
-        <Spinner size="xl" />
-      </Box>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500"></div>
+      </div>
     );
 
   if (errorUsers || errorProducts)
     return (
-      <Box p={10}>
-        <Text color="red.500">
+      <div className="p-10">
+        <p className="text-red-500 text-lg">
           {errorUsers?.message || errorProducts?.message || "Error fetching data"}
-        </Text>
-      </Box>
+        </p>
+      </div>
     );
 
   return (
-    <Box p={10}>
-      <Heading mb={6}>Dashboard</Heading>
+    <div className="p-10">
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-        {/* users */}
-        <CardComponent.Root>
-          <CardHeader>
-            <Heading size="md">Users ({users?.length})</Heading>
-          </CardHeader>
-          <CardBody>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Users */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Users ({users?.length})
+          </h2>
+          <div className="space-y-2">
             {users?.slice(0, 5).map((user) => (
-              <Text key={user.id}>
+              <p key={user.id} className="text-gray-700">
                 {user.firstName} {user.lastName} ({user.username})
-              </Text>
+              </p>
             ))}
-            {users && users.length > 5 && <Text>...and more</Text>}
-          </CardBody>
-        </CardComponent.Root>
+            {users && users.length > 5 && (
+              <p className="text-gray-500 italic">...and more</p>
+            )}
+          </div>
+        </div>
 
-        {/* products */}
-        <CardComponent.Root>
-          <CardHeader>
-            <Heading size="md">Products ({products?.length})</Heading>
-          </CardHeader>
-          <CardBody>
+        {/* Products */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Products ({products?.length})
+          </h2>
+          <div className="space-y-2">
             {products?.slice(0, 5).map((p) => (
-              <Text key={p.id}>
+              <p key={p.id} className="text-gray-700">
                 {p.title} - ${p.price}
-              </Text>
+              </p>
             ))}
-            {products && products.length > 5 && <Text>...and more</Text>}
-          </CardBody>
-        </CardComponent.Root>
-      </SimpleGrid>
-    </Box>
+            {products && products.length > 5 && (
+              <p className="text-gray-500 italic">...and more</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
