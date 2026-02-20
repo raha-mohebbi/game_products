@@ -31,9 +31,12 @@ export async function fetchProducts(
   const res = await axios.get(API_URL, {
     params: {
       key: API_KEY,
-      search,
-      genres: genres?.join(","), 
-      page,
+ search: search || undefined,
+      genres:
+        genres && genres.length > 0
+          ? genres.join(",")
+          : undefined,
+           page,
       page_size: 12, 
     },
   });
