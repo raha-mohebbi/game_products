@@ -16,6 +16,24 @@ import {
 } from "@chakra-ui/react";
 import { fetchProducts, Product, ProductsResponse } from "../services/products.service";
 import Link from "next/link";
+import AdvancedSelect from "../../components/AdvancedSelect";
+
+
+type Genre = {
+  id: number;
+  name: string;
+};
+
+const fetchGenres = async (): Promise<Genre[]> => {
+
+  return [
+    { id: 1, name: "Action" },
+    { id: 2, name: "Adventure" },
+    { id: 3, name: "RPG" },
+    { id: 4, name: "Strategy" },
+  ];
+};
+
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
@@ -28,6 +46,14 @@ const { data, isLoading, isFetching, error } = useQuery<ProductsResponse>({
   keepPreviousData: true,
   
 });
+
+  // fetch genres for AdvancedSelect
+  const { data: genresData } = useQuery<Genre[]>({
+    queryKey: ["genres"],
+    queryFn: fetchGenres,
+  });
+
+ const genreOptions = genresData?.map(g => ({ id: g.id, label: g.name })) || [];
 
 
   if (isLoading && !data)
@@ -56,6 +82,14 @@ const { data, isLoading, isFetching, error } = useQuery<ProductsResponse>({
           setPage(1); 
         }}
         mb={6}
+      />
+
+ {/* AdvancedSelect for genre filtering */}
+      <AdvancedSelect
+        options={genreOptions}
+        value={genreOptions.filter(g => selectedGenres.includes(g.id))}
+        onChange={(selected) => setSelectedGenres(selected.map(g => g.id))}
+        placeholder="Filter by genre..."
       />
 
 {isFetching && (
