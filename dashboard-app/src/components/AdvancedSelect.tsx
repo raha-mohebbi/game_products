@@ -3,7 +3,6 @@
 import { Fragment, useMemo, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import FixedSizeList from "react-window/dist/react-window.cjs";
 
 type Option = {
   id: string | number;
@@ -26,27 +25,22 @@ export default function AdvancedSelect({
 }: AdvancedSelectProps) {
   const [query, setQuery] = useState("");
 
- //filtering logic based on search query
   const filteredOptions = useMemo(() => {
     return options.filter((o) =>
       o.label.toLowerCase().includes(query.toLowerCase())
     );
   }, [options, query]);
 
-//grouping logic based on the "group" property of options
   const groupedOptions = useMemo(() => {
     const groups: Record<string, Option[]> = {};
-
     filteredOptions.forEach((option) => {
       const groupName = option.group || "Other";
       if (!groups[groupName]) groups[groupName] = [];
       groups[groupName].push(option);
     });
-
     return groups;
   }, [filteredOptions]);
 
-//selection logic for toggling optionsand handling "Select All" / "Clear" actions
   const isSelected = (option: Option) =>
     value.some((v) => v.id === option.id);
 
@@ -70,18 +64,12 @@ export default function AdvancedSelect({
     filteredOptions.length > 0 &&
     filteredOptions.every((opt) => isSelected(opt));
 
-//button label logic to show selected options or count of selected items
   const renderButtonLabel = () => {
     if (value.length === 0) return placeholder;
-
-    if (value.length <= 3) {
-      return value.map((v) => v.label).join(", ");
-    }
-
+    if (value.length <= 3) return value.map((v) => v.label).join(", ");
     return `${value.length} selected`;
   };
 
-//highlighting logic to emphasize matched text in options based on search query
   const highlightText = (text: string) => {
     if (!query) return text;
 
@@ -89,7 +77,7 @@ export default function AdvancedSelect({
 
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <span key={index} className="bg-yellow-200">
+        <span key={index} className="bg-purple-600/40 text-pink-300 px-1 rounded">
           {part}
         </span>
       ) : (
@@ -100,82 +88,99 @@ export default function AdvancedSelect({
 
   return (
     <div className="w-full max-w-md">
-     <Listbox value={value} onChange={onChange} multiple>
-  <div className="relative mt-1">
-    <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md border focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <span className="block truncate">{renderButtonLabel()}</span>
-      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-        <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
-      </span>
-    </Listbox.Button>
+      <Listbox value={value} onChange={onChange} multiple>
+        <div className="relative mt-1">
 
-    <Transition
-      as={Fragment}
-      leave="transition ease-in duration-100"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-    >
-      <Listbox.Options className="absolute z-10 mt-1 max-h-80 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          {/* Button */}
+          <Listbox.Button className="relative w-full cursor-pointer rounded-xl bg-white/5 backdrop-blur-xl py-3 pl-4 pr-10 text-left text-white border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)] focus:outline-none focus:ring-2 focus:ring-purple-500 transition">
+            <span className="block truncate">
+              {renderButtonLabel()}
+            </span>
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+              <ChevronUpDownIcon className="h-5 w-5 text-purple-400" />
+            </span>
+          </Listbox.Button>
 
-        <div className="px-3 py-2 sticky top-0 bg-white z-10">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500 outline-none"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-
-        <div className="flex justify-between px-3 py-1 text-xs text-blue-600 sticky top-[52px] bg-white z-10">
-          <button
-            disabled={allSelected}
-            className="disabled:opacity-40"
-            onClick={selectAll}
+          <Transition
+            as={Fragment}
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            Select All
-          </button>
-          <button onClick={clearAll}>Clear</button>
+            <Listbox.Options className="absolute z-20 mt-2 max-h-96 w-full overflow-auto rounded-2xl bg-black/90 backdrop-blur-xl py-2 text-sm shadow-[0_0_30px_rgba(168,85,247,0.3)] border border-purple-500/30">
+
+              {/* Search */}
+              <div className="px-4 pb-2 sticky top-0 bg-black/95 backdrop-blur-xl z-20">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full rounded-lg bg-white/5 border border-purple-500/30 px-3 py-2 text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Select / Clear */}
+              <div className="flex justify-between px-4 py-2 text-xs text-purple-400 sticky top-[56px] bg-black/95 z-20">
+                <button
+                  disabled={allSelected}
+                  className="hover:text-pink-400 disabled:opacity-40 transition"
+                  onClick={selectAll}
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={clearAll}
+                  className="hover:text-pink-400 transition"
+                >
+                  Clear
+                </button>
+              </div>
+
+              {Object.entries(groupedOptions).map(([groupName, items]) => (
+                <div key={groupName}>
+                  <div className="px-4 py-1 text-xs font-semibold text-purple-300 bg-purple-500/10 sticky top-[84px]">
+                    {groupName}
+                  </div>
+
+                  {items.map((option) => (
+                    <Listbox.Option
+                      key={option.id}
+                      value={option}
+                      className={({ active }) =>
+                        `cursor-pointer select-none relative py-2 pl-10 pr-4 transition ${
+                          active
+                            ? "bg-gradient-to-r from-purple-600/30 to-pink-600/30"
+                            : ""
+                        }`
+                      }
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span className="text-gray-200">
+                            {highlightText(option.label)}
+                          </span>
+                          {selected && (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-pink-400">
+                              <CheckIcon className="h-5 w-5" />
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </div>
+              ))}
+
+              {filteredOptions.length === 0 && (
+                <div className="px-4 py-3 text-gray-400 text-sm">
+                  No results found
+                </div>
+              )}
+            </Listbox.Options>
+          </Transition>
         </div>
-
-        {Object.entries(groupedOptions).map(([groupName, items]) => (
-          <div key={groupName}>
-            <div className="px-3 py-1 text-xs font-semibold text-gray-500 bg-gray-50 sticky top-[76px]">
-              {groupName}
-            </div>
-
-            {items.map((option) => (
-              <Listbox.Option
-                key={option.id}
-                value={option}
-                className={({ active }) =>
-                  `cursor-pointer select-none relative py-2 pl-10 pr-4 ${
-                    active ? "bg-blue-100" : ""
-                  }`
-                }
-              >
-                {({ selected }) => (
-                  <>
-                    <span>{highlightText(option.label)}</span>
-                    {selected && (
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
-                        <CheckIcon className="h-5 w-5" />
-                      </span>
-                    )}
-                  </>
-                )}
-              </Listbox.Option>
-            ))}
-          </div>
-        ))}
-
-        {filteredOptions.length === 0 && (
-          <div className="px-4 py-2 text-sm text-gray-500">No results found</div>
-        )}
-      </Listbox.Options>
-    </Transition>
-  </div>
-</Listbox>
+      </Listbox>
     </div>
   );
 }
